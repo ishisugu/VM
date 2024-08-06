@@ -40,3 +40,7 @@ body {
 .table-responsive {
     margin-bottom: 2rem;
 }
+.table th.text-center, .table td.text-center {
+    text-align: center;
+    vertical-align: middle;
+}

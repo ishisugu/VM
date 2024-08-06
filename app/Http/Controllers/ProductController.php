@@ -13,22 +13,27 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
+        // ソート条件を取得
+        $sort_by = $request->input('sort_by', 'id');
+        $sort_order = $request->input('sort_order', 'desc');
+
+        // 検索条件とソート条件を適用
         $products = Product::query();
 
-        $product_name = $request->input('product_name');
-        if (!empty($product_name) && $product_name != "") {
-            $products->where('product_name', 'LIKE', "%{$product_name}%");
-        }
-        $company_id = $request->input('company_id');
-        if (!empty($company_id) && $company_id != null) {
-            $products->where('company_id', $company_id);
-        }
+        // ... (既存の検索条件の適用)
+
+        $products->orderBy($sort_by, $sort_order);
 
         $values = $products->paginate(10);
         $companies = Company::all();
 
-        return view('products.product', compact('values', 'companies'));
+        if ($request->ajax()) {
+            return view('products.table', compact('values'))->render();
+        }
+
+        return view('products.product', compact('values', 'companies', 'sort_by', 'sort_order'));
     }
+
 
     public function create()
     {
@@ -109,9 +114,9 @@ class ProductController extends Controller
             $product = Product::findOrFail($id);
             $product->delete();
 
-            return redirect()->route('products.index')->with('success', '商品が正常に削除されました');
+            return response()->json(['message' => '商品が正常に削除されました'], 200);
         } catch (\Exception $e) {
-            return redirect()->route('products.index')->withErrors(['error' => '商品削除に失敗しました: ' . $e->getMessage()]);
+            return response()->json(['message' => '商品削除に失敗しました: ' . $e->getMessage()], 500);
         }
     }
 }

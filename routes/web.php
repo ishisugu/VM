@@ -32,3 +32,5 @@ Route::post('/products/destroy/{id}', [ProductController::class, 'destroy'])->na
 Route::post('/article/regist', [ProductController::class, 'regist'])->name('regist');
 Route::get('/products/edit/{id}', [ProductController::class, 'edit'])->name('products.edit');
 Route::post('/products/update/{id}', [ProductController::class, 'update'])->name('products.update');
+
+require __DIR__ . '/api.php';
