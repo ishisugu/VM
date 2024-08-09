@@ -5,6 +5,7 @@ body {
 
 .container {
     margin-top: 20px;
+    max-width: 100%; /* コンテナの幅をページ全体に合わせる */
 }
 
 .img-container {
@@ -39,7 +40,13 @@ body {
 
 .table-responsive {
     margin-bottom: 2rem;
+    width: 100%; /* テーブルをコンテナの幅に合わせる */
 }
+
+.table {
+    width: 100%; /* テーブルの幅を100%に設定 */
+}
+
 .table th.text-center, .table td.text-center {
     text-align: center;
     vertical-align: middle;

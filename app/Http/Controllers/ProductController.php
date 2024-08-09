@@ -13,20 +13,47 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        // ソート条件を取得
-        $sort_by = $request->input('sort_by', 'id');
-        $sort_order = $request->input('sort_order', 'desc');
+        // 初期表示と検索条件を取得
+        $sort_by = $request->input('sort_by', 'id'); // デフォルトのソートカラムは 'id'
+        $sort_order = $request->input('sort_order', 'desc'); // デフォルトのソート順は '降順'
 
-        // 検索条件とソート条件を適用
+        // 商品クエリ
         $products = Product::query();
 
-        // ... (既存の検索条件の適用)
+        // 検索条件の適用
+        $product_name = $request->input('product_name');
+        if (!empty($product_name)) {
+            $products->where('product_name', 'LIKE', "%{$product_name}%");
+        }
 
-        $products->orderBy($sort_by, $sort_order);
+        $company_id = $request->input('company_id');
+        if (!empty($company_id)) {
+            $products->where('company_id', $company_id);
+        }
 
-        $values = $products->paginate(10);
+        $price_min = $request->input('price_min');
+        $price_max = $request->input('price_max');
+        if (!empty($price_min)) {
+            $products->where('price', '>=', $price_min);
+        }
+        if (!empty($price_max)) {
+            $products->where('price', '<=', $price_max);
+        }
+
+        $stock_min = $request->input('stock_min');
+        $stock_max = $request->input('stock_max');
+        if (!empty($stock_min)) {
+            $products->where('stock', '>=', $stock_min);
+        }
+        if (!empty($stock_max)) {
+            $products->where('stock', '<=', $stock_max);
+        }
+
+        // ソート条件を適用して、結果を取得
+        $values = $products->orderBy($sort_by, $sort_order)->paginate(10);
         $companies = Company::all();
 
+        // AJAXリクエストかどうかで、レスポンスを切り替える
         if ($request->ajax()) {
             return view('products.table', compact('values'))->render();
         }

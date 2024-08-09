@@ -25,10 +25,10 @@
 
     <div class="container">
         <div class="search-form">
-            <form id="searchForm">
+            <form id="searchForm" method="POST" action="{{ route('products.index') }}">
                 @csrf
-                <input type="hidden" name="sort_by" id="sort_by" value="{{ request('sort_by', 'id') }}">
-                <input type="hidden" name="sort_order" id="sort_order" value="{{ request('sort_order', 'desc') }}">
+                <input type="hidden" name="sort_by" id="sort_by" value="{{ $sort_by }}">
+                <input type="hidden" name="sort_order" id="sort_order" value="{{ $sort_order }}">
                 <div class="form-row">
                     <div class="form-group col-md-6 mb-2">
                         <label for="product_name">検索キーワード</label>
@@ -70,55 +70,11 @@
             </form>
         </div>
 
+        <!-- テーブル部分 -->
         <div class="row" id="productTable">
-            <div class="col-12">
-                <div class="table-responsive">
-                    <table class="table table-bordered tablesorter">
-                        <thead>
-                            <tr>
-                                <th data-sorter="true" class="sortable" data-column="id">ID</th>
-                                <th data-sorter="false">商品画像</th>
-                                <th data-sorter="true">商品名</th>
-                                <th data-sorter="true">価格</th>
-                                <th data-sorter="true">在庫数</th>
-                                <th data-sorter="true">メーカー名</th>
-                                <th class="text-center" data-sorter="false">
-                                    <a class="btn btn-success" href="{{ route('products.create') }}">新規登録</a>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($values as $value)
-                            <tr>
-                                <td>{{ $value->id }}</td>
-                                <td>
-                                    @if ($value->img_path)
-                                    <div class="img-container">
-                                        <img src="{{ asset($value->img_path) }}" alt="商品画像" class="img-fluid img-thumbnail">
-                                    </div>
-                                    @else
-                                    <p>画像なし</p>
-                                    @endif
-                                </td>
-                                <td>{{ $value->product_name }}</td>
-                                <td>¥{{ number_format($value->price) }}</td>
-                                <td>{{ $value->stock }}</td>
-                                <td>{{ $value->company->company_name }}</td>
-                                <td class="text-center">
-                                    <a class="btn btn-info" href="{{ route('products.show', $value->id) }}">詳細</a>
-                                    <form action="{{ route('products.destroy', $value->id) }}" method="POST" class="delete-form" data-id="{{ $value->id }}" style="display:inline">
-                                        @csrf
-                                        <button type="button" class="btn btn-danger delete-button">削除</button>
-                                    </form>
-
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            @include('products.table', ['values' => $values])
         </div>
+
         <div class="pagination">
             {{$values->appends(request()->except('page'))->links()}}
         </div>
@@ -158,10 +114,10 @@
                 e.preventDefault();
                 $.ajax({
                     url: "{{ route('products.index') }}",
-                    method: 'GET',
+                    method: 'POST',
                     data: $(this).serialize(),
                     success: function(response) {
-                        $('#productTable').html($(response).find('#productTable').html());
+                        $('#productTable').html(response);
                         applyTableSorter();
                         updatePaginationLinks();
                     },
@@ -180,10 +136,10 @@
 
                     $.ajax({
                         url: "{{ route('products.index') }}",
-                        method: 'GET',
+                        method: 'POST',
                         data: formData,
                         success: function(response) {
-                            $('#productTable').html($(response).find('#productTable').html());
+                            $('#productTable').html(response);
                             applyTableSorter();
                             updatePaginationLinks();
                         },
@@ -195,28 +151,6 @@
             }
 
             updatePaginationLinks();
-
-            // 非同期削除処理
-            $('.delete-button').on('click', function() {
-                if (confirm('本当に削除しますか？')) {
-                    var form = $(this).closest('.delete-form');
-                    var productId = form.data('id');
-
-                    $.ajax({
-                        url: form.attr('action'),
-                        method: 'POST',
-                        data: form.serialize(),
-                        success: function(response) {
-                            form.closest('tr').remove();
-                            alert('商品が正常に削除されました');
-                        },
-                        error: function(xhr) {
-                            console.log(xhr.responseText);
-                            alert('商品削除に失敗しました');
-                        }
-                    });
-                }
-            });
         });
     </script>
 </body>
