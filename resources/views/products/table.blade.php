@@ -35,7 +35,7 @@
                         <a class="btn btn-info" href="{{ route('products.show', $value->id) }}">詳細</a>
                         <form action="{{ route('products.destroy', $value->id) }}" method="POST" style="display:inline">
                             @csrf
-                            <button type="submit" class="btn btn-danger">削除</button>
+                            <button type="submit" class="btn btn-danger delete-button">削除</button>
                         </form>
                     </td>
                 </tr>

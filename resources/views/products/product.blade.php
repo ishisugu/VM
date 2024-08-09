@@ -151,6 +151,32 @@
             }
 
             updatePaginationLinks();
+
+            // 削除ボタンの非同期処理
+            $(document).on('click', '.delete-button', function(e) {
+                e.preventDefault();
+                if (confirm('本当に削除しますか？')) {
+                    var form = $(this).closest('form');
+                    var url = form.attr('action');
+
+                    $.ajax({
+                        url: url,
+                        method: 'POST',
+                        data: form.serialize(),
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            form.closest('tr').remove();
+                            alert('商品が正常に削除されました');
+                        },
+                        error: function(xhr) {
+                            console.log(xhr.responseText);
+                            alert('商品削除に失敗しました');
+                        }
+                    });
+                }
+            });
         });
     </script>
 </body>
